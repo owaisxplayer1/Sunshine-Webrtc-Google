@@ -14,6 +14,7 @@ namespace unity
         }
         std::unique_ptr<webrtc::VideoEncoder> UnityVideoEncoderFactory::CreateVideoEncoder(const SdpVideoFormat& format)
         {
+            printf("CreateVideoEncoder\n");
             return std::unique_ptr<DummyVideoEncoder>();
         }
         UnityVideoEncoderFactory::UnityVideoEncoderFactory(IGraphicsDevice* gfxDevice, ProfilerMarkerFactory* profiler)

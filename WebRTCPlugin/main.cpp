@@ -69,7 +69,7 @@ namespace unity
 {
     namespace webrtc
     {
-        int MyCode() {
+        int CreatePeerConnectionFactory() {
             rtc::InitializeSSL();
             rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> m_peerConnectionFactory;
 
@@ -84,16 +84,12 @@ namespace unity
             std::unique_ptr<webrtc::VideoEncoderFactory> videoEncoderFactory =
                 std::make_unique<UnityVideoEncoderFactory>(nullptr, nullptr);
 
-            webrtc::CreatePeerConnectionFactory(
+            ::webrtc::CreatePeerConnectionFactory(
                 nullptr /* network_thread */, nullptr /* worker_thread */,
                 signaling_thread_.get(), nullptr /* default_adm */,
                 webrtc::CreateBuiltinAudioEncoderFactory(),
                 webrtc::CreateBuiltinAudioDecoderFactory(),
-                std::make_unique<webrtc::VideoEncoderFactoryTemplate<
-                webrtc::LibvpxVp8EncoderTemplateAdapter,
-                webrtc::LibvpxVp9EncoderTemplateAdapter,
-                webrtc::OpenH264EncoderTemplateAdapter,
-                webrtc::LibaomAv1EncoderTemplateAdapter>>(),
+                std::move(videoEncoderFactory),
                 std::make_unique<webrtc::VideoDecoderFactoryTemplate<
                 webrtc::LibvpxVp8DecoderTemplateAdapter,
                 webrtc::LibvpxVp9DecoderTemplateAdapter,
@@ -101,8 +97,14 @@ namespace unity
                 webrtc::Dav1dDecoderTemplateAdapter>>(),
                 nullptr /* audio_mixer */, nullptr /* audio_processing */);
 
-            std::cout << "Got it!" << std::endl;
+            std::cout << "CreatePeerConnectionFactory" << std::endl;
+            std::string userInput;
+            std::cin >> userInput;
             return 0;
         }
     }
+}
+
+int main() {
+    unity::webrtc::CreatePeerConnectionFactory();
 }
