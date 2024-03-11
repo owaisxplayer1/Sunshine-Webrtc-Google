@@ -106,3 +106,9 @@ namespace unity
         }
     }
 }
+
+
+int main() {
+    unity::webrtc::MyCode();
+    return 0;
+}
