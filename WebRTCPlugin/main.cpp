@@ -65,6 +65,8 @@
 using namespace webrtc;
 #include "UnityVideoEncoderFactory.h"
 
+#include "Context.h"
+
 namespace unity
 {
     namespace webrtc
@@ -98,6 +100,9 @@ namespace unity
                 nullptr /* audio_mixer */, nullptr /* audio_processing */);
 
             std::cout << "CreatePeerConnectionFactory" << std::endl;
+
+            webrtc::PeerConnectionDependencies pc_dependencies();
+
             std::string userInput;
             std::cin >> userInput;
             return 0;
@@ -107,4 +112,6 @@ namespace unity
 
 int main() {
     unity::webrtc::CreatePeerConnectionFactory();
+    ContextDependencies dependencies = {};
+    Context ctx(dependencies);
 }
