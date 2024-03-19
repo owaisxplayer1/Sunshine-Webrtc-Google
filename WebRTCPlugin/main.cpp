@@ -62,8 +62,8 @@
 #include <dxgi.h>
 #include <dxgi1_6.h>
 
-#include "UnityVideoEncoderFactory.h"
 #include "Context.h"
+#include "CreateSessionDescriptionObserver.h"
 
 using namespace webrtc;
 using namespace unity::webrtc;
@@ -88,6 +88,14 @@ UNITY_INTERFACE_EXPORT DataChannelInterface* ContextCreateDataChannel(
     return ctx->CreateDataChannel(obj, label, _options);
 }
 
+UNITY_INTERFACE_EXPORT unity::webrtc::CreateSessionDescriptionObserver*
+PeerConnectionCreateOffer(Context* context, PeerConnectionObject* obj, const RTCOfferAnswerOptions* options)
+{
+    auto observer = unity::webrtc::CreateSessionDescriptionObserver::Create(obj);
+    obj->CreateOffer(*options, observer.get());
+    return observer.get();
+}
+
 int main() {
     //Context Manager
     ContextManager* ctx_manager = ContextManager::GetInstance();
@@ -101,6 +109,18 @@ int main() {
 
     //Datachannel
     auto datachannel = ContextCreateDataChannel(ctx, pco, "data-channel");
+
+    //Offer
+    const RTCOfferAnswerOptions options = {false, false};
+    unity::webrtc::CreateSessionDescriptionObserver::RegisterCallback([](PeerConnectionObject* peerConnectionObject,
+        unity::webrtc::CreateSessionDescriptionObserver* observer,
+        RTCSdpType sdpType,
+        const char* sdp,
+        RTCErrorType errorType,
+        const char* error) {
+            std::cout << "GOT SDP" << std::endl;
+        });
+    auto csdo = PeerConnectionCreateOffer(ctx, pco, &options);
 
     std::this_thread::sleep_for(std::chrono::seconds(30));
     return 0;

@@ -10,6 +10,9 @@ namespace unity
 	{
 		using namespace ::webrtc;
 
+        extern webrtc::SdpType ConvertSdpType(RTCSdpType type);
+        extern RTCSdpType ConvertSdpType(webrtc::SdpType type);
+
 		class PeerConnectionObject : public PeerConnectionObserver
 		{
         public:
