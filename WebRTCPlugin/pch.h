@@ -15,7 +15,7 @@
 #endif
 #pragma endregion
 
-//#include "PlatformBase.h"
+#include "PlatformBase.h"
 
 #pragma region Platform headers
 #if UNITY_LINUX || UNITY_ANDROID
@@ -27,7 +27,7 @@
 #endif
 
 #if CUDA_PLATFORM
-#include <cuda.h>
+//#include <cuda.h>
 #endif
 
 #if SUPPORT_D3D11 && SUPPORT_D3D12
@@ -37,9 +37,9 @@
 #include <d3d12.h>
 #include <wrl/client.h>
 
-#include <IUnityGraphicsD3D11.h>
-#include <IUnityGraphicsD3D12.h>
-#include <cudaD3D11.h>
+//#include <IUnityGraphicsD3D11.h>
+//#include <IUnityGraphicsD3D12.h>
+//#include <cudaD3D11.h>
 #endif
 
 #if SUPPORT_OPENGL_CORE
@@ -67,19 +67,6 @@
 #include <IUnityGraphicsMetal.h>
 #endif
 
-#if SUPPORT_VULKAN
-#include <vulkan/vulkan.h>
-
-#include <IUnityGraphicsVulkan.h>
-
-#include "GraphicsDevice/Vulkan/LoadVulkanFunctions.h"
-
-#if _WIN32
-#include <vulkan/vulkan_win32.h>
-#endif
-#endif
-#pragma endregion
-
 // #pragma clang diagnostic push
 // #pragma clang diagnostic ignored "-Wkeyword-macro"
 // #if _WIN32 && _DEBUG
@@ -92,7 +79,7 @@
 // audio codec isac
 #define WEBRTC_USE_BUILTIN_ISAC_FLOAT 1
 
-namespace joyflix
+namespace unity
 {
     namespace webrtc
     {
@@ -124,4 +111,4 @@ namespace joyflix
 
         const uint32 bufferedFrameNum = 3;
     } // end namespace webrtc
-} // end namespace joyflix
+} // end namespace unity

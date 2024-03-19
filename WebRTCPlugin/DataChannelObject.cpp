@@ -1,45 +1,81 @@
-//
-// Created by owais on 28/2/23.
-//
+#include "pch.h"
 
 #include "DataChannelObject.h"
-#include "Logger.h"
 
-webrtc::DataChannelObject::DataChannelObject(
-    rtc::scoped_refptr<DataChannelInterface> channel, webrtc::PeerConnectionObject& pc)
-    : dataChannel(channel)
+namespace unity
 {
-    dataChannel->RegisterObserver(this);
-    DebugLog("DataChannelObject Created!\n");
-}
-
-webrtc::DataChannelObject::~DataChannelObject() {
-    dataChannel->UnregisterObserver();
-    DebugLog("DataChannelObject Destroyed!\n");
-}
-
-void webrtc::DataChannelObject::OnStateChange() {
-    auto state = dataChannel->state();
-    switch (state)
+    namespace webrtc
     {
-    case webrtc::DataChannelInterface::kOpen:
-        if (onOpen != nullptr)
-        {
-            onOpen(this->dataChannel.get());
-        }
-        break;
-    case webrtc::DataChannelInterface::kClosed:
-        if (onClose != nullptr)
-        {
-            onClose(this->dataChannel.get());
-        }
-        break;
-    case webrtc::DataChannelInterface::kConnecting:
-    case webrtc::DataChannelInterface::kClosing:
-        break;
-    }
-}
 
-void webrtc::DataChannelObject::OnMessage(const webrtc::DataBuffer& buffer) {
-    DebugLog("DataChannel: Got message:\n");
-}
+        DataChannelObject::DataChannelObject(
+            rtc::scoped_refptr<webrtc::DataChannelInterface> channel, PeerConnectionObject& pc)
+            : dataChannel(channel)
+            , onMessage(nullptr)
+            , onOpen(nullptr)
+            , onClose(nullptr)
+            , onError(nullptr)
+        {
+            dataChannel->RegisterObserver(this);
+        }
+        DataChannelObject::~DataChannelObject()
+        {
+            dataChannel->UnregisterObserver();
+
+            auto state = dataChannel->state();
+            if (state == webrtc::DataChannelInterface::kOpen)
+            {
+                dataChannel->Close();
+            }
+            dataChannel = nullptr;
+            onClose = nullptr;
+            onOpen = nullptr;
+            onMessage = nullptr;
+        }
+
+        void DataChannelObject::OnStateChange()
+        {
+            auto state = dataChannel->state();
+            switch (state)
+            {
+            case webrtc::DataChannelInterface::kOpen:
+                if (onOpen)
+                    onOpen(dataChannel.get());
+                break;
+            case webrtc::DataChannelInterface::kClosed:
+            {
+                RTCError error = dataChannel->error();
+                if (error.type() == RTCErrorType::NONE)
+                {
+                    if (onClose)
+                        onClose(dataChannel.get());
+                }
+                else
+                {
+                    if (onError)
+                        onError(
+                            dataChannel.get(),
+                            error.type(),
+                            error.message(),
+                            static_cast<int32_t>(std::strlen(error.message())));
+                }
+                break;
+            }
+            case webrtc::DataChannelInterface::kConnecting:
+            case webrtc::DataChannelInterface::kClosing:
+                break;
+            }
+        }
+        void DataChannelObject::OnMessage(const webrtc::DataBuffer& buffer)
+        {
+            if (onMessage)
+            {
+                size_t size = buffer.data.size();
+                if (onMessage != nullptr)
+                {
+                    onMessage(dataChannel.get(), buffer.data.data(), static_cast<int32_t>(size));
+                }
+            }
+        }
+
+    } // end namespace webrtc
+} // end namespace unity

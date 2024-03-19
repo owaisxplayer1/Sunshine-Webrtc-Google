@@ -62,56 +62,46 @@
 #include <dxgi.h>
 #include <dxgi1_6.h>
 
-using namespace webrtc;
 #include "UnityVideoEncoderFactory.h"
-
 #include "Context.h"
 
-namespace unity
+using namespace webrtc;
+using namespace unity::webrtc;
+
+#define UNITY_INTERFACE_EXPORT
+
+PeerConnectionObject* ContextCreatePeerConnection(Context* context)
 {
-    namespace webrtc
-    {
-        int CreatePeerConnectionFactory() {
-            rtc::InitializeSSL();
-            rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> m_peerConnectionFactory;
+    PeerConnectionInterface::RTCConfiguration config;
+    config.sdp_semantics = SdpSemantics::kUnifiedPlan;
+    config.enable_implicit_rollback = true;
+    config.set_suspend_below_min_bitrate(false);
+    return context->CreatePeerConnection(config);
+}
 
-            std::unique_ptr<rtc::Thread> signaling_thread_;
-            std::unique_ptr<webrtc::TaskQueueFactory> m_taskQueueFactory = CreateDefaultTaskQueueFactory();
+UNITY_INTERFACE_EXPORT DataChannelInterface* ContextCreateDataChannel(
+    Context* ctx, PeerConnectionObject* obj, const char* label)
+{
+    DataChannelInit _options;
+    
 
-            if (!signaling_thread_.get()) {
-                signaling_thread_ = rtc::Thread::CreateWithSocketServer();
-                signaling_thread_->Start();
-            }
-
-            std::unique_ptr<webrtc::VideoEncoderFactory> videoEncoderFactory =
-                std::make_unique<UnityVideoEncoderFactory>(nullptr, nullptr);
-
-            ::webrtc::CreatePeerConnectionFactory(
-                nullptr /* network_thread */, nullptr /* worker_thread */,
-                signaling_thread_.get(), nullptr /* default_adm */,
-                webrtc::CreateBuiltinAudioEncoderFactory(),
-                webrtc::CreateBuiltinAudioDecoderFactory(),
-                std::move(videoEncoderFactory),
-                std::make_unique<webrtc::VideoDecoderFactoryTemplate<
-                webrtc::LibvpxVp8DecoderTemplateAdapter,
-                webrtc::LibvpxVp9DecoderTemplateAdapter,
-                webrtc::OpenH264DecoderTemplateAdapter,
-                webrtc::Dav1dDecoderTemplateAdapter>>(),
-                nullptr /* audio_mixer */, nullptr /* audio_processing */);
-
-            std::cout << "CreatePeerConnectionFactory" << std::endl;
-
-            webrtc::PeerConnectionDependencies pc_dependencies();
-
-            std::string userInput;
-            std::cin >> userInput;
-            return 0;
-        }
-    }
+    return ctx->CreateDataChannel(obj, label, _options);
 }
 
 int main() {
-    unity::webrtc::CreatePeerConnectionFactory();
-    ContextDependencies dependencies = {};
-    Context ctx(dependencies);
+    //Context Manager
+    ContextManager* ctx_manager = ContextManager::GetInstance();
+
+    //Context
+    ContextDependencies dep{};
+    auto ctx = ctx_manager->CreateContext(1,dep);
+
+    //PeerConnectionObject
+    auto pco = ContextCreatePeerConnection(ctx);
+
+    //Datachannel
+    auto datachannel = ContextCreateDataChannel(ctx, pco, "data-channel");
+
+    std::this_thread::sleep_for(std::chrono::seconds(30));
+    return 0;
 }
