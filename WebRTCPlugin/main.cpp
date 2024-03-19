@@ -118,7 +118,7 @@ int main() {
         const char* sdp,
         RTCErrorType errorType,
         const char* error) {
-            std::cout << "GOT SDP" << std::endl;
+            std::cout << "GOT SDP"<< sdp << std::endl;
         });
     auto csdo = PeerConnectionCreateOffer(ctx, pco, &options);
 
