@@ -1,5 +1,5 @@
 #include "PeerConnectionObject.h"
-
+#include "Logger.h"
 
 namespace unity
 {
@@ -101,6 +101,7 @@ namespace unity
 		}
 		void PeerConnectionObject::OnDataChannel(rtc::scoped_refptr<DataChannelInterface> data_channel)
 		{
+			printf("OnDataChannel\n");
 		}
 		void PeerConnectionObject::OnRenegotiationNeeded()
 		{
@@ -116,6 +117,15 @@ namespace unity
 		}
 		void PeerConnectionObject::OnIceCandidate(const IceCandidateInterface* candidate)
 		{
+			std::string out;
+			if (!candidate->ToString(&out))
+			{
+				DebugError("Can't make string form of sdp.");
+			}
+			if (onIceCandidate != nullptr)
+			{
+				onIceCandidate(this, out.c_str(), candidate->sdp_mid().c_str(), candidate->sdp_mline_index());
+			}
 		}
 		void PeerConnectionObject::OnTrack(rtc::scoped_refptr<RtpTransceiverInterface> transceiver)
 		{

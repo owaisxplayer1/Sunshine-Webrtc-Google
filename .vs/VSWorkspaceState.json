@@ -1,0 +1,16 @@
+{
+  "OutputFoldersPerTargetSystem": {
+    "Local Machine": [
+      "out\\build\\x64-windows-msvc",
+      "out\\build\\x64-windows-clangcl",
+      "out\\build\\x64-windows-clang",
+      "out\\build\\armv7-android",
+      "out\\build\\arm64-android"
+    ]
+  },
+  "ExpandedNodes": [
+    ""
+  ],
+  "SelectedNode": "\\D:\\Owais\\Sandbox\\CMakeLists.txt",
+  "PreviewInSolutionExplorer": false
+}

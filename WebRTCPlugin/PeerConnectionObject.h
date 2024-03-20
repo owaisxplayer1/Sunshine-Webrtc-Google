@@ -13,6 +13,19 @@ namespace unity
         extern webrtc::SdpType ConvertSdpType(RTCSdpType type);
         extern RTCSdpType ConvertSdpType(webrtc::SdpType type);
 
+        using DelegateCreateSDSuccess = void (*)(PeerConnectionObject*, RTCSdpType, const char*);
+        using DelegateCreateSDFailure = void (*)(PeerConnectionObject*, RTCErrorType, const char*);
+        using DelegateLocalSdpReady = void (*)(PeerConnectionObject*, const char*, const char*);
+        using DelegateIceCandidate = void (*)(PeerConnectionObject*, const char*, const char*, const int);
+        using DelegateOnIceConnectionChange = void (*)(PeerConnectionObject*, PeerConnectionInterface::IceConnectionState);
+        using DelegateOnIceGatheringChange = void (*)(PeerConnectionObject*, PeerConnectionInterface::IceGatheringState);
+        using DelegateOnConnectionStateChange =
+            void (*)(PeerConnectionObject*, PeerConnectionInterface::PeerConnectionState);
+        using DelegateOnDataChannel = void (*)(PeerConnectionObject*, DataChannelInterface*);
+        using DelegateOnRenegotiationNeeded = void (*)(PeerConnectionObject*);
+        using DelegateOnTrack = void (*)(PeerConnectionObject*, RtpTransceiverInterface*);
+        using DelegateOnRemoveTrack = void (*)(PeerConnectionObject*, RtpReceiverInterface*);
+
 		class PeerConnectionObject : public PeerConnectionObserver
 		{
         public:
@@ -36,6 +49,25 @@ namespace unity
             std::string GetConfiguration() const;
             void CreateOffer(const RTCOfferAnswerOptions& options, CreateSessionDescriptionObserver* observer);
             void CreateAnswer(const RTCOfferAnswerOptions& options, CreateSessionDescriptionObserver* observer);
+
+            void RegisterCallbackCreateSD(DelegateCreateSDSuccess onSuccess, DelegateCreateSDFailure onFailure)
+            {
+                onCreateSDSuccess = onSuccess;
+                onCreateSDFailure = onFailure;
+            }
+
+            void RegisterLocalSdpReady(DelegateLocalSdpReady callback) { onLocalSdpReady = callback; }
+            void RegisterIceCandidate(DelegateIceCandidate callback) { onIceCandidate = callback; }
+            void RegisterIceConnectionChange(DelegateOnIceConnectionChange callback) { onIceConnectionChange = callback; }
+            void RegisterConnectionStateChange(DelegateOnConnectionStateChange callback)
+            {
+                onConnectionStateChange = callback;
+            }
+            void RegisterIceGatheringChange(DelegateOnIceGatheringChange callback) { onIceGatheringChange = callback; }
+            void RegisterOnDataChannel(DelegateOnDataChannel callback) { onDataChannel = callback; }
+            void RegisterOnRenegotiationNeeded(DelegateOnRenegotiationNeeded callback) { onRenegotiationNeeded = callback; }
+            void RegisterOnTrack(DelegateOnTrack callback) { onTrack = callback; }
+            void RegisterOnRemoveTrack(DelegateOnRemoveTrack callback) { onRemoveTrack = callback; }
 
             // webrtc::PeerConnectionObserver
         // Triggered when the SignalingState changed.
@@ -76,6 +108,17 @@ namespace unity
 
             friend class DataChannelObject;
 
+            DelegateCreateSDSuccess onCreateSDSuccess = nullptr;
+            DelegateCreateSDFailure onCreateSDFailure = nullptr;
+            DelegateIceCandidate onIceCandidate = nullptr;
+            DelegateLocalSdpReady onLocalSdpReady = nullptr;
+            DelegateOnConnectionStateChange onConnectionStateChange = nullptr;
+            DelegateOnIceConnectionChange onIceConnectionChange = nullptr;
+            DelegateOnIceGatheringChange onIceGatheringChange = nullptr;
+            DelegateOnDataChannel onDataChannel = nullptr;
+            DelegateOnRenegotiationNeeded onRenegotiationNeeded = nullptr;
+            DelegateOnTrack onTrack = nullptr;
+            DelegateOnRemoveTrack onRemoveTrack = nullptr;
             rtc::scoped_refptr<PeerConnectionInterface> connection = nullptr;
 		};
 	}

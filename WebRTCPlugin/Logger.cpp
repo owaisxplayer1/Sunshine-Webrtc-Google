@@ -1,6 +1,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
-#include "pch.h"
+#include "Logger.h"
 
 #include "WebRTCPlugin.h"
 
@@ -35,6 +35,11 @@ namespace unity
             va_end(vl);
 #endif
         }
+
+        void DebugError(const char* fmt, ...) {
+            LogPrint(rtc::LS_ERROR, fmt);
+        }
+
         void checkf(bool result, const char* msg)
         {
             if (!result)
