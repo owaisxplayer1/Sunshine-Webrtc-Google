@@ -10,7 +10,7 @@ namespace unity
     {
         class CreateSessionDescriptionObserver;
         using DelegateCreateSessionDesc = void (*)(
-            PeerConnectionObject*, CreateSessionDescriptionObserver*, RTCSdpType, const char*, RTCErrorType, const char*);
+            PeerConnectionObject*, CreateSessionDescriptionObserver*, RTCSdpType, const std::string, RTCErrorType, const char*);
 
         class CreateSessionDescriptionObserver : public ::webrtc::CreateSessionDescriptionObserver
         {

@@ -25,7 +25,7 @@ namespace unity
             std::string out;
             desc->ToString(&out);
             const auto sdpType = ConvertSdpType(desc->GetType());
-            s_createSessionDescCallback(m_connection, this, sdpType, out.c_str(), RTCErrorType::NONE, nullptr);
+            s_createSessionDescCallback(m_connection, this, sdpType, out, RTCErrorType::NONE, nullptr);
         }
 
         void CreateSessionDescriptionObserver::OnFailure(webrtc::RTCError error)

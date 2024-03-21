@@ -47,8 +47,6 @@ wsServer.on('request', (req) => {
     const conn = req.accept(null, req.origin);
 
     conn.on('message', (data) => {
-        console.log("Got from "+id+" msg: "+data.utf8Data);
-        conn.send("Hello Client");
           const destId = id == "server" ? "client" : "server";
           const dest = clients[destId];
           if (dest) {

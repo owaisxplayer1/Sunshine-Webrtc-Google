@@ -120,6 +120,8 @@ namespace unity
             DelegateOnTrack onTrack = nullptr;
             DelegateOnRemoveTrack onRemoveTrack = nullptr;
             rtc::scoped_refptr<PeerConnectionInterface> connection = nullptr;
+        private:
+            Context& context;
 		};
 	}
 }
