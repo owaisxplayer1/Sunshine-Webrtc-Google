@@ -115,7 +115,7 @@ namespace unity
 		}
 		void PeerConnectionObject::OnSignalingChange(PeerConnectionInterface::SignalingState new_state)
 		{
-			printf("OnSignalingChange\n");
+			
 		}
 		void PeerConnectionObject::OnAddStream(rtc::scoped_refptr<MediaStreamInterface> stream)
 		{

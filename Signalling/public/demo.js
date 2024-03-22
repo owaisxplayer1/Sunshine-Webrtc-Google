@@ -20,10 +20,18 @@ pc.ontrack = function (event) {};
 
 pc.oniceconnectionstatechange = (e) => log(pc.iceConnectionState);
 pc.onicecandidate = (event) => {
-
-    console.log("On ICE");
-    // websocket.send(JSON.stringify(pc.localDescription));
+  console.log(event.candidate);
+  // websocket.send(JSON.stringify(pc.localDescription));
 };
+
+function sendMessage(message) {
+  if (dataChannel.readyState === "open") {
+    dataChannel.send(message);
+    console.log("Message sent:", message);
+  } else {
+    console.error("Data channel is not open");
+  }
+}
 
 // Receive data channel
 pc.ondatachannel = (evt) => {
@@ -31,11 +39,20 @@ pc.ondatachannel = (evt) => {
 
   dc.onopen = () => {
     console.log("datachannel open");
+    // Continuously send a message every 2 seconds
+    setInterval(function () {
+      if (dc.readyState === "open") {
+        dc.send("Hello world!");
+        console.log("Message sent:");
+      } else {
+        console.error("Data channel is not open");
+      }
+    }, 2000); // 2000 milliseconds = 2 seconds
   };
 
   let dcTimeout = null;
   dc.onmessage = (evt) => {
-    console.log("dc: "+evt);
+    console.log("dc: " + evt);
   };
 
   dc.onclose = () => {
@@ -44,13 +61,26 @@ pc.ondatachannel = (evt) => {
   };
 };
 
+async function waitGatheringComplete() {
+  return new Promise((resolve) => {
+    if (pc.iceGatheringState === "complete") {
+      resolve();
+    } else {
+      pc.addEventListener("icegatheringstatechange", () => {
+        if (pc.iceGatheringState === "complete") {
+          resolve();
+        }
+      });
+    }
+  });
+}
+
 async function sendAnswer(pc) {
-  await pc.setLocalDescription(await pc.createAnswer());
+  var answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  console.log(answer);
   await waitGatheringComplete();
-
-  const answer = pc.localDescription;
-
-  console.log("answer: " + answer);
+  websocket.send(JSON.stringify(answer));
 }
 
 async function OnOffer(sdp) {
@@ -59,18 +89,25 @@ async function OnOffer(sdp) {
   await sendAnswer(pc);
 }
 
+function OnICE(msg) {
+  var candidate = {
+    candidate: msg.candidate,
+    sdpMid: msg.sdpMid,
+    sdpMLineIndex: msg.sdpMLineIndex,
+  };
+  // Create an ICE candidate object
+  var iceCandidate = new RTCIceCandidate(candidate);
+  console.log("OnICE: " + candidate);
+  pc.addIceCandidate(iceCandidate);
+}
+
 websocket.onmessage = function (event) {
-  // var sdp = "{\"type\":\"answer\",\"sdp\":\""+ atob(event.data) + "\"}"
-  var sdp = JSON.parse(event.data);
-  pc.setRemoteDescription(sdp).then(()=>{console.log("Answer Set");})
-  console.log(sdp);
+  var msg = JSON.parse(event.data);
+  if (msg.type == "offer") {
+    OnOffer(msg);
+  } else {
+    OnICE(msg);
+  }
 };
 
-websocket.onopen = () => {
-  pc.createOffer()
-    .then((d) => {
-      pc.setLocalDescription(d);
-      websocket.send(d.sdp);
-    })
-    .catch(log);
-};
+websocket.onopen = () => {};

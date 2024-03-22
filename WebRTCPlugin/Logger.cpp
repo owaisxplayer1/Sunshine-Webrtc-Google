@@ -11,29 +11,34 @@
 namespace unity
 {
 	namespace webrtc
-	{
+    {
         void LogPrint(rtc::LoggingSeverity severity, const char* fmt, ...)
         {
-#if _DEBUG
-            va_list vl;
-            va_start(vl, fmt);
-            char buf[2048];
-#if _WIN32
-            vsprintf_s(buf, fmt, vl);
-#else
-            vsprintf(buf, fmt, vl);
-#endif
-            switch (severity)
-            {
+            const char* severityStr = "";
+            switch (severity) {
+            case rtc::LoggingSeverity::LS_VERBOSE:
+                severityStr = "VERBOSE";
+                break;
+            case rtc::LoggingSeverity::LS_INFO:
+                severityStr = "INFO";
+                break;
+            case rtc::LoggingSeverity::LS_WARNING:
+                severityStr = "WARNING";
+                break;
             case rtc::LoggingSeverity::LS_ERROR:
-                printf("LS_ERROR: %s", severity, buf);
+                severityStr = "ERROR";
                 break;
-            default:
-                break;
+            case rtc::LoggingSeverity::LS_NONE:
+                return; // Do nothing for LS_NONE severity
             }
-            printf("", severity, buf);
-            va_end(vl);
-#endif
+
+            // Print severity and message using printf
+            std::printf("[%s] ", severityStr);
+            va_list args;
+            va_start(args, fmt);
+            std::vprintf(fmt, args);
+            va_end(args);
+            std::printf("\n");
         }
 
         void DebugError(const char* fmt, ...) {
