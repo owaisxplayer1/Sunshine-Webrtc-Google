@@ -75,6 +75,10 @@ namespace unity
             // Video Source
             rtc::scoped_refptr<UnityVideoTrackSource> CreateVideoSource();
 
+            // MediaStreamTrack
+            rtc::scoped_refptr<VideoTrackInterface>
+                CreateVideoTrack(const std::string& label, webrtc::VideoTrackSourceInterface* source);
+
             // PeerConnection
             PeerConnectionObject* CreatePeerConnection(const PeerConnectionInterface::RTCConfiguration& config);
             void DeletePeerConnection(PeerConnectionObject* obj);

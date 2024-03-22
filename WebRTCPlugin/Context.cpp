@@ -140,6 +140,12 @@ namespace unity
 			return rtc::make_ref_counted<UnityVideoTrackSource>(false, absl::nullopt, m_taskQueueFactory.get());
 		}
 
+		rtc::scoped_refptr<VideoTrackInterface>
+			Context::CreateVideoTrack(const std::string& label, VideoTrackSourceInterface* source)
+		{
+			return m_peerConnectionFactory->CreateVideoTrack(rtc::scoped_refptr<VideoTrackSourceInterface>(source), label);
+		}
+
 		PeerConnectionObject* Context::CreatePeerConnection(const PeerConnectionInterface::RTCConfiguration& config)
 		{
 			std::unique_ptr<PeerConnectionObject> obj = std::make_unique<PeerConnectionObject>(*this);

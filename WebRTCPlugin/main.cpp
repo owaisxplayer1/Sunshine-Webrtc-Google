@@ -86,6 +86,12 @@ int main() {
     rtc::scoped_refptr<VideoTrackSourceInterface> video_source = ctx->CreateVideoSource();
     ctx->AddRefPtr(video_source);
 
+    rtc::scoped_refptr<VideoTrackInterface> video_track = ctx->CreateVideoTrack("video", video_source.get());
+    ctx->AddRefPtr(video_track);
+
+    const char kStreamId[] = "stream_id";
+    pco->connection->AddTrack(video_track, { kStreamId });
+
     //Create and Send Offer
     SetLocalDescriptionObserver::RegisterCallback([](PeerConnectionObject*, SetLocalDescriptionObserver*, RTCErrorType, const char*) {
         });
