@@ -16,7 +16,9 @@ const log = (msg) => {
   document.getElementById("div").innerHTML += msg + "<br>";
 };
 
-pc.ontrack = function (event) {};
+pc.ontrack = function (event) {
+  console.log("OnTrack");
+};
 
 pc.oniceconnectionstatechange = (e) => log(pc.iceConnectionState);
 pc.onicecandidate = (event) => {

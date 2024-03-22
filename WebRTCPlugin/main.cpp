@@ -82,6 +82,10 @@ int main() {
     auto datachannel = ContextCreateDataChannel(ctx, pco, "data");
     ctx->GetDataChannelObject(datachannel)->RegisterOnMessage(OnDatachannel);
 
+    //Create VideoSource
+    rtc::scoped_refptr<VideoTrackSourceInterface> video_source = ctx->CreateVideoSource();
+    ctx->AddRefPtr(video_source);
+
     //Create and Send Offer
     SetLocalDescriptionObserver::RegisterCallback([](PeerConnectionObject*, SetLocalDescriptionObserver*, RTCErrorType, const char*) {
         });

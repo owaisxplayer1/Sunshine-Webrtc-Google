@@ -4,6 +4,8 @@
 #include "rtc_base/ref_count.h"
 #include "PeerConnectionObject.h"
 
+#include "UnityVideoTrackSource.h"
+
 namespace unity
 {
     namespace webrtc
@@ -69,6 +71,9 @@ namespace unity
                 std::lock_guard<std::mutex> lock(mutex);
                 m_mapRefPtr.erase(ptr);
             }
+
+            // Video Source
+            rtc::scoped_refptr<UnityVideoTrackSource> CreateVideoSource();
 
             // PeerConnection
             PeerConnectionObject* CreatePeerConnection(const PeerConnectionInterface::RTCConfiguration& config);

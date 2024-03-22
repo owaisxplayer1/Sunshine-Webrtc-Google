@@ -135,6 +135,11 @@ namespace unity
 			}
 		}
 
+		rtc::scoped_refptr<UnityVideoTrackSource> Context::CreateVideoSource()
+		{
+			return rtc::make_ref_counted<UnityVideoTrackSource>(false, absl::nullopt, m_taskQueueFactory.get());
+		}
+
 		PeerConnectionObject* Context::CreatePeerConnection(const PeerConnectionInterface::RTCConfiguration& config)
 		{
 			std::unique_ptr<PeerConnectionObject> obj = std::make_unique<PeerConnectionObject>(*this);
