@@ -10,6 +10,10 @@
 #include "api/audio_codecs/builtin_audio_decoder_factory.h"
 #include "api/audio_codecs/builtin_audio_encoder_factory.h"
 
+#include "UnityVideoEncoderFactory.h"
+#include "UnityVideoDecoderFactory.h"
+
+#include "Logger.h"
 #include "Context.h"
 
 using namespace ::webrtc;
@@ -44,7 +48,7 @@ namespace unity
 			auto it = s_instance->m_contexts.find(uid);
 			if (it != s_instance->m_contexts.end())
 			{
-				DebugLog("Using already created context with ID %d", uid);
+				JLogPrint(rtc::LoggingSeverity::LS_INFO,"Using already created context with ID %d", uid);
 				return nullptr;
 			}
 			s_instance->m_contexts[uid] = std::make_unique<Context>(dependencies);
@@ -79,7 +83,7 @@ namespace unity
 		{
 			if (m_contexts.size())
 			{
-				DebugWarning("%lu remaining context(s) registered", m_contexts.size());
+				JLogPrint(rtc::LoggingSeverity::LS_ERROR,"%lu remaining context(s) registered", m_contexts.size());
 			}
 			m_contexts.clear();
 		}
@@ -94,8 +98,11 @@ namespace unity
 
 			rtc::InitializeSSL();
 
-			std::unique_ptr<webrtc::VideoEncoderFactory> videoEncoderFactory;
-			std::unique_ptr<webrtc::VideoDecoderFactory> videoDecoderFactory;
+			std::unique_ptr<webrtc::VideoEncoderFactory> videoEncoderFactory =
+				std::make_unique<UnityVideoEncoderFactory>(dependencies.device, dependencies.profiler);
+			
+			std::unique_ptr<webrtc::VideoDecoderFactory> videoDecoderFactory =
+				std::make_unique<UnityVideoDecoderFactory>(dependencies.device, dependencies.profiler);
 
 			m_peerConnectionFactory = CreatePeerConnectionFactory(
 				m_workerThread.get(),

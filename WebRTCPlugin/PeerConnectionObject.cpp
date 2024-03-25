@@ -66,7 +66,8 @@ namespace unity
 
 		RTCErrorType PeerConnectionObject::SetLocalDescriptionWithoutDescription(rtc::scoped_refptr<SetLocalDescriptionObserverInterface> observer, std::string& error)
 		{
-			return RTCErrorType();
+			connection->SetLocalDescription(observer);
+			return RTCErrorType::NONE;
 		}
 
 		RTCErrorType PeerConnectionObject::SetRemoteDescription(const RTCSessionDescription& desc, rtc::scoped_refptr<SetRemoteDescriptionObserverInterface> observer, std::string& error)

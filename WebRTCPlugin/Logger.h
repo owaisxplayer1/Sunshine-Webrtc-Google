@@ -5,7 +5,12 @@ namespace unity
 {
 	namespace webrtc
 	{
-		// Define a flag to enable or disable logging
+		void JLogPrint(rtc::LoggingSeverity severity, const char* fmt, ...);
+		void DebugError(const char* fmt, ...);
+	}
+}
+
+// Define a flag to enable or disable logging
 #define LOGGING_ENABLED 1
 
 // Define macros for different logging levels
@@ -21,8 +26,3 @@ namespace unity
 #define LOG_WARNING(...)
 #define LOG_ERROR(...)
 #endif
-
-		void LogPrint(rtc::LoggingSeverity severity, const char* fmt, ...);
-		void DebugError(const char* fmt, ...);
-	}
-}

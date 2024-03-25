@@ -12,8 +12,9 @@ namespace unity
 {
 	namespace webrtc
     {
-        void LogPrint(rtc::LoggingSeverity severity, const char* fmt, ...)
+        void JLogPrint(rtc::LoggingSeverity severity, const char* fmt, ...)
         {
+#if LOGGING_ENABLED
             const char* severityStr = "";
             switch (severity) {
             case rtc::LoggingSeverity::LS_VERBOSE:
@@ -39,10 +40,11 @@ namespace unity
             std::vprintf(fmt, args);
             va_end(args);
             std::printf("\n");
+#endif
         }
 
         void DebugError(const char* fmt, ...) {
-            LogPrint(rtc::LS_ERROR, fmt);
+            JLogPrint(rtc::LS_ERROR, fmt);
         }
 
         void checkf(bool result, const char* msg)

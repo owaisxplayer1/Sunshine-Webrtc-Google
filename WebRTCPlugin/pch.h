@@ -83,15 +83,6 @@ namespace unity
 {
     namespace webrtc
     {
-        void LogPrint(rtc::LoggingSeverity severity, const char* fmt, ...);
-        void LogPrint(rtc::LoggingSeverity severity, const wchar_t* fmt, ...);
-        void checkf(bool result, const char* msg);
-#define DebugLog(...) LogPrint(rtc::LoggingSeverity::LS_INFO, "webrtc Log: " __VA_ARGS__)
-#define DebugWarning(...) LogPrint(rtc::LoggingSeverity::LS_WARNING, "webrtc Warning: " __VA_ARGS__)
-#define DebugError(...) LogPrint(rtc::LoggingSeverity::LS_ERROR, "webrtc Error: " __VA_ARGS__)
-#define DebugLogW(...) LogPrint(rtc::LoggingSeverity::LS_INFO, L"webrtc Log: " __VA_ARGS__)
-#define DebugWarningW(...) LogPrint(rtc::LoggingSeverity::LS_WARNING, L"webrtc Warning: " __VA_ARGS__)
-#define DebugErrorW(...) LogPrint(rtc::LoggingSeverity::LS_ERROR, L"webrtc Error: " __VA_ARGS__)
 #define NV_RESULT(NvFunction) NvFunction == NV_ENC_SUCCESS
 
 #if !UNITY_WIN
