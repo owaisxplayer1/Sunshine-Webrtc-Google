@@ -106,7 +106,7 @@ int main() {
         json["type"] = "candidate";
         json["candidate"] = sdp;
         json["sdpMid"] = sdp_mid;
-        json["sdpMLineIndex"] = sdp;
+        json["sdpMLineIndex"] = mline;
 
         std::string jsonString = json.dump();
         signalling::SendMessage(jsonString);
@@ -126,7 +126,7 @@ int main() {
 
     //Add Track
     const char kStreamId[] = "stream_id";
-    pco->connection->AddTrack(video_track, { kStreamId });
+    //pco->connection->AddTrack(video_track, { kStreamId });
 
     //Create Transceiver
     RtpTransceiverInit TransceiverInit;
@@ -178,7 +178,7 @@ int main() {
             const RTCSessionDescription desc = { RTCSdpType::Offer , (char*)sdp.c_str() };
             std::string error_;
             auto sldo = SetLocalDescriptionObserver::Create(peerConnectionObject);
-            peerConnectionObject->SetLocalDescriptionWithoutDescription( sldo, error_);
+            peerConnectionObject->SetLocalDescription(desc,sldo, error_);
 
             nlohmann::json json;
 

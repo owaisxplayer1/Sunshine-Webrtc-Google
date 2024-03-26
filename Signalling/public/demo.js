@@ -5,6 +5,8 @@
 
 const websocket = new WebSocket("ws://localhost:7002/client");
 
+let assert_equals = window.assert_equals ? window.assert_equals : (a, b, msg) => { if (a === b) { return; } throw new Error(`${msg} expected ${b} but got ${a}`); };
+
 const pc = new RTCPeerConnection({
   iceServers: [
     {
@@ -16,8 +18,16 @@ const log = (msg) => {
   document.getElementById("div").innerHTML += msg + "<br>";
 };
 
+var videoElement = document.createElement('video');
+videoElement.id = 'Video';
+videoElement.style.touchAction = 'none';
+videoElement.playsInline = true;
+videoElement.srcObject = new MediaStream();
+document.getElementById("remoteVideos").appendChild(videoElement);
+
 pc.ontrack = function (event) {
   console.log("OnTrack");
+  videoElement.srcObject.addTrack(event.track);
 };
 
 pc.oniceconnectionstatechange = (e) => log(pc.iceConnectionState);
@@ -77,7 +87,8 @@ async function waitGatheringComplete() {
   });
 }
 
-async function sendAnswer(pc) {
+async function sendAnswer(description) {
+  await pc.setRemoteDescription(description);
   var answer = await pc.createAnswer();
   await pc.setLocalDescription(answer);
   console.log(answer);
@@ -85,29 +96,35 @@ async function sendAnswer(pc) {
   websocket.send(JSON.stringify(answer));
 }
 
-async function OnOffer(sdp) {
-  console.log(sdp);
-  await pc.setRemoteDescription(sdp);
-  await sendAnswer(pc);
+async function onGotDescription(description) {
+  await pc.setRemoteDescription(description);
+  if (description.type == 'offer') {
+    //_dispatchEvent(new CustomEvent('ongotoffer', { detail: { connectionId: connectionId } }));
+
+    assert_equals(pc.signalingState, 'have-remote-offer', 'Remote offer');
+    assert_equals(pc.remoteDescription.type, 'offer', 'SRD worked');
+    log('SLD to get back to stable');
+    await pc.setLocalDescription();
+    assert_equals(pc.signalingState, 'stable', 'onmessage not racing with negotiationneeded');
+    assert_equals(pc.localDescription.type, 'answer', 'onmessage SLD worked');
+    //dispatchEvent(new CustomEvent('sendanswer', { detail: { connectionId: connectionId, sdp: pc.localDescription.sdp } }));
+    console.log("Got Answer: "+pc.localDescription.sdp);
+    websocket.send(JSON.stringify({ type: "answer", sdp: pc.localDescription.sdp }));
+  }
 }
 
-function OnICE(msg) {
-  var candidate = {
-    candidate: msg.candidate,
-    sdpMid: msg.sdpMid,
-    sdpMLineIndex: msg.sdpMLineIndex,
-  };
+function OnICE(candidate) {
   // Create an ICE candidate object
-  var iceCandidate = new RTCIceCandidate(candidate);
-  console.log("OnICE: " + candidate);
+  var iceCandidate = new RTCIceCandidate({ candidate: candidate.candidate, sdpMid: candidate.sdpMid, sdpMLineIndex: candidate.sdpMLineIndex });
   pc.addIceCandidate(iceCandidate);
 }
 
 websocket.onmessage = function (event) {
   var msg = JSON.parse(event.data);
   if (msg.type == "offer") {
-    OnOffer(msg);
-  } else {
+    console.log("Got Offer: "+msg.sdp);
+    sendAnswer(msg)
+  } else if(msg.type == "candidate") {
     OnICE(msg);
   }
 };

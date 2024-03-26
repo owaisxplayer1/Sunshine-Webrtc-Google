@@ -18,13 +18,8 @@ namespace unity
 			format1.parameters.emplace("level-asymmetry-allowed", "1");
 			format1.parameters.emplace("packetization-mode", "1");
 			format1.parameters.emplace("profile-level-id", "42e033");
-			
-			SdpVideoFormat format2("VP9");
-			format2.parameters.emplace("implementation_name", "Internal");
-			format2.parameters.emplace("profile-id", "0");
 
 			formats.push_back(format1);
-			formats.push_back(format2);
 			return formats;
 		}
 
