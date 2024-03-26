@@ -220,6 +220,10 @@ int main() {
     //Read ICE
     auto candidate = signalling::ReadMessage();
 
+
+    //OnFrame Loop in video_source track
+    //((UnityVideoTrackSource*)video_source.get())->OnFrameCaptured(nullptr);
+
     std::this_thread::sleep_for(std::chrono::seconds(300));
     
     return 0;

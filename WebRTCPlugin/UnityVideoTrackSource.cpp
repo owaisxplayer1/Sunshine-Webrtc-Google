@@ -1,4 +1,5 @@
 #include "UnityVideoTrackSource.h"
+#include <system_wrappers/include/clock.h>
 
 namespace unity
 {
@@ -53,9 +54,26 @@ namespace unity
 		{
 		}
 
+		static std::unique_ptr<Clock> s_clock;
 		void UnityVideoTrackSource::CaptureVideoFrame()
 		{
-			
+			Timestamp timestamp = s_clock->CurrentTime();
+			Size size(1920,1080);
+			frame_ = rtc::make_ref_counted<unity::webrtc::VideoFrame>(size, webrtc::TimeDelta::Micros(timestamp.us()));
+			const int orig_width = frame_->size().width();
+			const int orig_height = frame_->size().height();
+			const int64_t now_us = rtc::TimeMicros();
+
+			//FrameAdaptationParams frame_adaptation_params = ComputeAdaptationParams(orig_width, orig_height, now_us);
+			//if (frame_adaptation_params.should_drop_frame)
+			//{
+			//	frame_ = nullptr;
+			//	return;
+			//}
+
+			//const webrtc::TimeDelta timestamp = frame_->timestamp();
+			/*rtc::scoped_refptr<VideoFrameAdapter> frame_adapter(
+				new rtc::RefCountedObject<VideoFrameAdapter>(std::move(frame_)));*/
 		}
 
 		void UnityVideoTrackSource::SendFeedback()

@@ -72,8 +72,9 @@ namespace unity
             std::mutex mutex_;
 
             std::unique_ptr<rtc::TaskQueue> taskQueue_;
-            //rtc::scoped_refptr<unity::webrtc::VideoFrame> frame_;
+
             bool syncApplicationFramerate_;
+            rtc::scoped_refptr<unity::webrtc::VideoFrame> frame_;
 		};
 	}
 }
