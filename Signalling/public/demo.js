@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: 2023 The Pion community <https://pion.ly>
 // SPDX-License-Identifier: MIT
 
-const websocket = new WebSocket("ws://localhost:7002/client");
+const websocket = new WebSocket("ws://192.168.1.197:7002/client");
 
 let assert_equals = window.assert_equals ? window.assert_equals : (a, b, msg) => { if (a === b) { return; } throw new Error(`${msg} expected ${b} but got ${a}`); };
 
@@ -21,7 +21,8 @@ const log = (msg) => {
 var videoElement = document.createElement('video');
 videoElement.id = 'Video';
 videoElement.style.touchAction = 'none';
-videoElement.playsInline = true;
+videoElement.setAttribute("controls","controls") 
+//videoElement.playsInline = true;
 videoElement.srcObject = new MediaStream();
 document.getElementById("remoteVideos").appendChild(videoElement);
 

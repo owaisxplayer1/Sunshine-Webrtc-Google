@@ -218,13 +218,14 @@ int main() {
     pco->SetRemoteDescription(desc, observer, error_);
 
     //Read ICE
-    auto candidate = signalling::ReadMessage();
-
+    //auto candidate = signalling::ReadMessage();
 
     //OnFrame Loop in video_source track
-    //((UnityVideoTrackSource*)video_source.get())->OnFrameCaptured(nullptr);
-
-    std::this_thread::sleep_for(std::chrono::seconds(300));
+    while (true)
+    {
+        ((UnityVideoTrackSource*)video_source.get())->CaptureVideoFrame();
+        std::this_thread::sleep_for(std::chrono::microseconds(100));
+    }
     
     return 0;
 }

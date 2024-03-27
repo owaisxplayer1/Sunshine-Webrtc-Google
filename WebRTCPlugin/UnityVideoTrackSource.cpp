@@ -1,10 +1,13 @@
 #include "UnityVideoTrackSource.h"
 #include <system_wrappers/include/clock.h>
+#include "VideoFrameAdapter.h"
 
 namespace unity
 {
 	namespace webrtc
 	{
+		static std::unique_ptr<Clock> s_clock;
+
 		rtc::scoped_refptr<UnityVideoTrackSource> UnityVideoTrackSource::Create(
 			bool is_screencast, absl::optional<bool> needs_denoising, TaskQueueFactory* taskQueueFactory)
 		{
@@ -16,6 +19,7 @@ namespace unity
 			, is_screencast_(is_screencast)
 			, syncApplicationFramerate_(true)
 		{
+			s_clock.reset(Clock::GetRealTimeClock());
 		}
 
 		UnityVideoTrackSource::~UnityVideoTrackSource()
@@ -54,26 +58,29 @@ namespace unity
 		{
 		}
 
-		static std::unique_ptr<Clock> s_clock;
 		void UnityVideoTrackSource::CaptureVideoFrame()
 		{
-			Timestamp timestamp = s_clock->CurrentTime();
 			Size size(1920,1080);
-			frame_ = rtc::make_ref_counted<unity::webrtc::VideoFrame>(size, webrtc::TimeDelta::Micros(timestamp.us()));
+			frame_ = rtc::make_ref_counted<unity::webrtc::VideoFrame>(size, webrtc::TimeDelta::Micros(s_clock->CurrentTime().us()));
 			const int orig_width = frame_->size().width();
 			const int orig_height = frame_->size().height();
 			const int64_t now_us = rtc::TimeMicros();
 
-			//FrameAdaptationParams frame_adaptation_params = ComputeAdaptationParams(orig_width, orig_height, now_us);
-			//if (frame_adaptation_params.should_drop_frame)
-			//{
-			//	frame_ = nullptr;
-			//	return;
-			//}
+			FrameAdaptationParams frame_adaptation_params = ComputeAdaptationParams(orig_width, orig_height, now_us);
+			if (frame_adaptation_params.should_drop_frame)
+			{
+				frame_ = nullptr;
+				return;
+			}
 
-			//const webrtc::TimeDelta timestamp = frame_->timestamp();
-			/*rtc::scoped_refptr<VideoFrameAdapter> frame_adapter(
-				new rtc::RefCountedObject<VideoFrameAdapter>(std::move(frame_)));*/
+			const webrtc::TimeDelta timestamp = frame_->timestamp();
+			rtc::scoped_refptr<VideoFrameAdapter> frame_adapter(
+				new rtc::RefCountedObject<VideoFrameAdapter>(std::move(frame_)));
+
+			::webrtc::VideoFrame::Builder builder = ::webrtc::VideoFrame::Builder()
+				.set_video_frame_buffer(std::move(frame_adapter))
+				.set_timestamp_us(timestamp.us());
+			OnFrame(builder.build());
 		}
 
 		void UnityVideoTrackSource::SendFeedback()
